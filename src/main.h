@@ -9,10 +9,10 @@
 #define MAIN_H
 
 #ifdef __APPLE__
-	#include <GL/glfw.h>
+#include <GL/glfw.h>
 #else
-	#include <GL/glew.h>
-	#include <GL/glut.h>
+#include <GL/glew.h>
+#include <GL/glut.h>
 #endif
 
 #include <stdlib.h>
@@ -42,20 +42,21 @@
 
 using namespace std;
 
-//-------------------------------
-//----------PATHTRACER-----------
-//-------------------------------
-
+// PATHTRACER
 scene* renderScene;
 camera* renderCam;
-int targetFrame;
 int iterations;
 bool finishedRender;
-bool singleFrameMode;
 
-//-------------------------------
-//------------GL STUFF-----------
-//-------------------------------
+// DEVICE DATA
+glm::vec3* cudaimage = NULL;
+geom* cudageoms = NULL;
+material* cudamaterials = NULL;
+cameraData cam;
+int numberOfGeoms;
+int numberOfMaterials;
+
+// GL
 
 GLuint positionLocation = 0;
 GLuint texcoordsLocation = 1;
@@ -63,21 +64,15 @@ const char *attributeLocations[] = { "Position", "Tex" };
 GLuint pbo = (GLuint)NULL;
 GLuint displayImage;
 
-//-------------------------------
-//----------CUDA STUFF-----------
-//-------------------------------
+// CUDA
 
 int width=800; int height=800;
 
-//-------------------------------
-//-------------MAIN--------------
-//-------------------------------
+// MAIN
 
 int main(int argc, char** argv);
 
-//-------------------------------
-//---------RUNTIME STUFF---------
-//-------------------------------
+// RUNTIME
 
 void runCuda();
 
@@ -88,9 +83,7 @@ void runCuda();
 	void keyboard(unsigned char key, int x, int y);
 #endif
 
-//-------------------------------
-//----------SETUP STUFF----------
-//-------------------------------
+// SETUP
 
 #ifdef __APPLE__
 	void init();
@@ -99,14 +92,13 @@ void runCuda();
 #endif
 
 void initPBO(GLuint* pbo);
+void initDeviceMemory();
 void initCuda();
 void initTextures();
 void initVAO();
 GLuint initShader(const char *vertexShaderPath, const char *fragmentShaderPath);
 
-//-------------------------------
-//---------CLEANUP STUFF---------
-//-------------------------------
+// CLEANUP
 
 void cleanupCuda();
 void deletePBO(GLuint* pbo);

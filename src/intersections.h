@@ -17,10 +17,10 @@ __host__ __device__ glm::vec3 getPointOnRay(ray r, float t);
 __host__ __device__ glm::vec3 multiplyMV(cudaMat4 m, glm::vec4 v);
 __host__ __device__ glm::vec3 getSignOfRay(ray r);
 __host__ __device__ glm::vec3 getInverseDirectionOfRay(ray r);
-__host__ __device__ float boxIntersectionTest(staticGeom sphere, ray r, glm::vec3& intersectionPoint, glm::vec3& normal);
-__host__ __device__ float boxIntersectionTest(glm::vec3 boxMin, glm::vec3 boxMax, staticGeom box, ray r, glm::vec3& intersectionPoint, glm::vec3& normal);
-__host__ __device__ float sphereIntersectionTest(staticGeom sphere, ray r, glm::vec3& intersectionPoint, glm::vec3& normal);
-__host__ __device__ glm::vec3 getRandomPointOnCube(staticGeom cube, float randomSeed);
+__host__ __device__ float boxIntersectionTest(geom sphere, ray r, glm::vec3& intersectionPoint, glm::vec3& normal);
+__host__ __device__ float boxIntersectionTest(glm::vec3 boxMin, glm::vec3 boxMax, geom box, ray r, glm::vec3& intersectionPoint, glm::vec3& normal);
+__host__ __device__ float sphereIntersectionTest(geom sphere, ray r, glm::vec3& intersectionPoint, glm::vec3& normal);
+__host__ __device__ glm::vec3 getRandomPointOnCube(geom cube, float randomSeed);
 
 //Handy dandy little hashing function that provides seeds for random number generation
 __host__ __device__ unsigned int hash(unsigned int a){
@@ -70,12 +70,12 @@ __host__ __device__ glm::vec3 getSignOfRay(ray r){
 }
 
 //Wrapper for cube intersection test for testing against unit cubes
-__host__ __device__  float boxIntersectionTest(staticGeom box, ray r, glm::vec3& intersectionPoint, glm::vec3& normal){
+__host__ __device__  float boxIntersectionTest(geom box, ray r, glm::vec3& intersectionPoint, glm::vec3& normal){
   return boxIntersectionTest(glm::vec3(-.5,-.5,-.5), glm::vec3(.5,.5,.5), box, r, intersectionPoint, normal);
 }
 
 //Cube intersection test, return -1 if no intersection, otherwise, distance to intersection
-__host__ __device__  float boxIntersectionTest(glm::vec3 boxMin, glm::vec3 boxMax, staticGeom box, ray r, glm::vec3& intersectionPoint, glm::vec3& normal){
+__host__ __device__  float boxIntersectionTest(glm::vec3 boxMin, glm::vec3 boxMax, geom box, ray r, glm::vec3& intersectionPoint, glm::vec3& normal){
     glm::vec3 currentNormal = glm::vec3(0,0,0);
 
     ray ro = r;
@@ -165,7 +165,7 @@ __host__ __device__  float boxIntersectionTest(glm::vec3 boxMin, glm::vec3 boxMa
 
 //LOOK: Here's an intersection test example from a sphere. Now you just need to figure out cube and, optionally, triangle.
 //Sphere intersection test, return -1 if no intersection, otherwise, distance to intersection
-__host__ __device__ float sphereIntersectionTest(staticGeom sphere, ray r, glm::vec3& intersectionPoint, glm::vec3& normal){
+__host__ __device__ float sphereIntersectionTest(geom sphere, ray r, glm::vec3& intersectionPoint, glm::vec3& normal){
   
   float radius = .5;
         
@@ -204,11 +204,11 @@ __host__ __device__ float sphereIntersectionTest(staticGeom sphere, ray r, glm::
 }
 
 //returns x,y,z half-dimensions of tightest bounding box
-__host__ __device__ glm::vec3 getRadiuses(staticGeom geom){
-    glm::vec3 origin = multiplyMV(geom.transform, glm::vec4(0,0,0,1));
-    glm::vec3 xmax = multiplyMV(geom.transform, glm::vec4(.5,0,0,1));
-    glm::vec3 ymax = multiplyMV(geom.transform, glm::vec4(0,.5,0,1));
-    glm::vec3 zmax = multiplyMV(geom.transform, glm::vec4(0,0,.5,1));
+__host__ __device__ glm::vec3 getRadiuses(geom geometry){
+    glm::vec3 origin = multiplyMV(geometry.transform, glm::vec4(0,0,0,1));
+    glm::vec3 xmax = multiplyMV(geometry.transform, glm::vec4(.5,0,0,1));
+    glm::vec3 ymax = multiplyMV(geometry.transform, glm::vec4(0,.5,0,1));
+    glm::vec3 zmax = multiplyMV(geometry.transform, glm::vec4(0,0,.5,1));
     float xradius = glm::distance(origin, xmax);
     float yradius = glm::distance(origin, ymax);
     float zradius = glm::distance(origin, zmax);
@@ -217,7 +217,7 @@ __host__ __device__ glm::vec3 getRadiuses(staticGeom geom){
 
 //LOOK: Example for generating a random point on an object using thrust.
 //Generates a random point on a given cube
-__host__ __device__ glm::vec3 getRandomPointOnCube(staticGeom cube, float randomSeed){
+__host__ __device__ glm::vec3 getRandomPointOnCube(geom cube, float randomSeed){
 
     thrust::default_random_engine rng(hash(randomSeed));
     thrust::uniform_real_distribution<float> u01(0,1);
@@ -262,7 +262,7 @@ __host__ __device__ glm::vec3 getRandomPointOnCube(staticGeom cube, float random
 }
 
 //Generates a random point on a given sphere
-__host__ __device__ glm::vec3 getRandomPointOnSphere(staticGeom sphere, float randomSeed){
+__host__ __device__ glm::vec3 getRandomPointOnSphere(geom sphere, float randomSeed){
   float radius=.5f;
   thrust::default_random_engine rng(hash(randomSeed));
   thrust::uniform_real_distribution<float> u01(-1,1);

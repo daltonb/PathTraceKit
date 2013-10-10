@@ -21,17 +21,6 @@ struct ray {
 struct geom {
 	enum GEOMTYPE type;
 	int materialid;
-	int frames;
-	glm::vec3* translations;
-	glm::vec3* rotations;
-	glm::vec3* scales;
-	cudaMat4* transforms;
-	cudaMat4* inverseTransforms;
-};
-
-struct staticGeom {
-	enum GEOMTYPE type;
-	int materialid;
 	glm::vec3 translation;
 	glm::vec3 rotation;
 	glm::vec3 scale;
@@ -49,10 +38,9 @@ struct cameraData {
 
 struct camera {
 	glm::vec2 resolution;
-	glm::vec3* positions;
-	glm::vec3* views;
-	glm::vec3* ups;
-	int frames;
+	glm::vec3 position;
+	glm::vec3 view;
+	glm::vec3 up;
 	glm::vec2 fov;
 	unsigned int iterations;
 	glm::vec3* image;
